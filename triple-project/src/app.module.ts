@@ -3,10 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './apis/user/user.module';
+import { PlaceModule } from './apis/place/place.module';
 
 @Module({
   imports: [
     UserModule,
+    PlaceModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'database-server',
@@ -19,7 +21,7 @@ import { UserModule } from './apis/user/user.module';
       logging: true,
       retryAttempts: 30,
       retryDelay: 5000,
-      timezone: 'Asia/Seoul',
+      timezone: 'Z',
     }),
   ],
   controllers: [AppController],
