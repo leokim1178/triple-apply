@@ -4,4 +4,4 @@ COPY ./package.json /triple-project/
 COPY ./yarn.lock /triple-project/
 RUN yarn install
 COPY . /triple-project/
-CMD yarn start:dev
+CMD yarn run start:dev

@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './apis/user/user.module';
 
 @Module({
   imports: [
+    UserModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'database-server',
@@ -17,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       logging: true,
       retryAttempts: 30,
       retryDelay: 5000,
+      timezone: 'Asia/Seoul',
     }),
   ],
   controllers: [AppController],

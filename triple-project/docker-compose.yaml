@@ -16,5 +16,13 @@ services:
     environment:
       MYSQL_DATABASE: 'triple-database'
       MYSQL_ROOT_PASSWORD: '1178'
+      TZ: 'Asia/Seoul'
+    command:
+      [
+        'mysqld',
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_unicode_ci',
+        '--default-time-zone=+09:00',
+      ]
     ports:
       - 3306:3306
