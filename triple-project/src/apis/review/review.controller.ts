@@ -18,12 +18,11 @@ export class ReviewController {
     return this.reviewService.fetchAll();
   }
 
-  @Post(':placeId')
+  @Post()
   async createReview(
-    @Param('placeId') placeId: number, //
-    @Body() createReviewInput: CreateReviewInput,
+    @Body() createReviewInput: CreateReviewInput, //
   ) {
-    const { imgUrls, content, userId } = createReviewInput;
+    const { placeId, imgUrls, content, userId } = createReviewInput;
 
     const place = await this.reviewService.isExist({ placeId });
     const user = await this.reviewService.isExist({ userId });

@@ -93,7 +93,7 @@ export class ReviewService {
     return result.affected ? true : false;
   }
 
-  async isExist({ reviewId, placeId, userId }: { reviewId?: string; placeId?: number; userId?: string }) {
+  async isExist({ reviewId, placeId, userId }: { reviewId?: string; placeId?: string; userId?: string }) {
     if (reviewId) {
       const review = await this.reviewRepository.findOne({ where: { id: reviewId } });
       if (review) {
