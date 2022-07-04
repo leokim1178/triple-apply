@@ -1,10 +1,22 @@
 import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Place } from '../place/entities/place.entity';
 import { ReviewImage } from '../reviewImage/entities/reviewImage.entity';
 import { User } from '../user/entities/user.entity';
 import { Review } from './entities/review.entity';
+import { ReviewCreatedEvent, TestEvent } from './review.event';
+
+export enum Type {
+  REVIEW = 'REVIEW',
+}
+
+export enum Action {
+  ADD = 'ADD',
+  MOD = 'MOD',
+  DELETE = 'DELETE',
+}
 
 @Injectable()
 export class ReviewService {
@@ -13,6 +25,7 @@ export class ReviewService {
     @InjectRepository(ReviewImage) private readonly reviewImageRepository: Repository<ReviewImage>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Place) private readonly placeRepository: Repository<Place>,
+    private readonly eventBus: EventBus,
   ) {}
 
   async fetch({ id }) {
@@ -30,12 +43,32 @@ export class ReviewService {
       }),
     );
 
-    return await this.reviewRepository.save({
+    const isExist = await this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoin('review.user', 'user')
+      .leftJoin('review.place', 'place')
+      .where({ user })
+      .andWhere({ place })
+      .getOne();
+    if (isExist) throw new UnprocessableEntityException('장소에 대한 리뷰가 이미 존재합니다');
+
+    const result = await this.reviewRepository.save({
       user,
       place,
       content,
       reviewImages: images,
     });
+    const userId = user.id;
+    const placeId = place.id;
+    const reviewId = result.id;
+    const attachedPhotoIds = result.reviewImages.map(el => el.id);
+    const type = Type.REVIEW;
+    const action = Action.ADD;
+
+    this.eventBus.publish(new ReviewCreatedEvent(content, userId, reviewId, placeId, attachedPhotoIds, type, action));
+    this.eventBus.publish(new TestEvent());
+
+    return new ReviewCreatedEvent(content, userId, reviewId, placeId, attachedPhotoIds, type, action);
   }
 
   async update({ review, updateReviewInput }) {

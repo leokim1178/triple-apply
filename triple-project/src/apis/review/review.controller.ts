@@ -1,11 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { CreateReviewInput } from './dto/createReviewInput';
 import { UpdateReviewInput } from './dto/updateReviewInput';
+import { CreateReviewCommand } from './review.command';
 import { ReviewService } from './review.service';
 
 @Controller('review')
 export class ReviewController {
-  constructor(private readonly reviewService: ReviewService) {}
+  constructor(private readonly reviewService: ReviewService, private commandBus: CommandBus) {}
 
   @Get(':id')
   fetchReview(@Param('id') id: string) {
@@ -23,7 +25,9 @@ export class ReviewController {
     @Body() createReviewInput: CreateReviewInput,
   ) {
     const { imgUrls, content, userId } = createReviewInput;
-    console.log(imgUrls);
+    // const command = new CreateReviewCommand(placeId, userId, content, imgUrls);
+    // return this.commandBus.execute(command);
+
     const place = await this.reviewService.isExist({ placeId });
     const user = await this.reviewService.isExist({ userId });
     return await this.reviewService.create({ user, place, imgUrls, content });

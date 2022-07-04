@@ -675,6 +675,13 @@
     tslib "2.4.0"
     uuid "8.3.2"
 
+"@nestjs/cqrs@^8.0.5":
+  version "8.0.5"
+  resolved "https://registry.yarnpkg.com/@nestjs/cqrs/-/cqrs-8.0.5.tgz#a24ee5e47ac9ca41b6f8ff29bc81dddacf7fed61"
+  integrity sha512-uOG7xY0e5WGEuCHKCqSsuy79i5fq6pj+zPQG/6LwpSdwHWaraIUR1N4ExAVof19AGQvDQMpCqMiTrb4O+HjlIg==
+  dependencies:
+    uuid "8.3.2"
+
 "@nestjs/platform-express@^8.0.0":
   version "8.4.7"
   resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-8.4.7.tgz#402a3d3c47327a164bb3867615f423c29d1a6cd9"
