@@ -6,7 +6,7 @@ import { Place } from '../place/entities/place.entity';
 import { ReviewImage } from '../reviewImage/entities/reviewImage.entity';
 import { User } from '../user/entities/user.entity';
 import { Review } from './entities/review.entity';
-import { ReviewCreatedEvent, TestEvent } from './review.event';
+import { ReviewCreatedEvent, TestEvent } from './dto/review.events';
 
 export enum Type {
   REVIEW = 'REVIEW',

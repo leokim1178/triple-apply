@@ -1,5 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { ReviewCreatedEvent, TestEvent } from './review.event';
+import { ReviewCreatedEvent, TestEvent } from './dto/review.events';
 
 @EventsHandler(ReviewCreatedEvent, TestEvent)
 export class ReviewEventsHandler implements IEventHandler<ReviewCreatedEvent | TestEvent> {
