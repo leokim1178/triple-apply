@@ -6,7 +6,7 @@ import { Place } from '../place/entities/place.entity';
 import { ReviewImage } from '../reviewImage/entities/reviewImage.entity';
 import { User } from '../user/entities/user.entity';
 import { Review } from './entities/review.entity';
-import { ReviewCreatedEvent, TestEvent } from './dto/review.events';
+import { ReviewCreatedEvent } from './event/review.events';
 import { Type, Action } from '../pointLog/type/pointLog.type';
 
 @Injectable()
@@ -56,8 +56,12 @@ export class ReviewService {
     const type = Type.REVIEW;
     const action = Action.ADD;
 
-    this.eventBus.publish(new ReviewCreatedEvent(content, userId, reviewId, placeId, attachedPhotoIds, type, action));
-    this.eventBus.publish(new TestEvent());
+    const eventResult = await this.eventBus.publish(
+      new ReviewCreatedEvent(content, userId, reviewId, placeId, attachedPhotoIds, type, action),
+    );
+    // await this.eventBus.publish(
+    //   new ReviewCreatedPointEvent(userId, reviewId, placeId, type, action, content, attachedPhotoIds),
+    // );
 
     return new ReviewCreatedEvent(content, userId, reviewId, placeId, attachedPhotoIds, type, action);
   }

@@ -1,4 +1,3 @@
-import { Review } from 'src/apis/review/entities/review.entity';
 import { User } from 'src/apis/user/entities/user.entity';
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Action, Type } from '../type/pointLog.type';
@@ -11,7 +10,7 @@ export class PointLog {
   @Column()
   point: number;
 
-  @Column()
+  @Column({ default: 0 })
   total: number;
 
   @Column()
@@ -22,9 +21,6 @@ export class PointLog {
 
   @ManyToOne(() => User)
   user: User;
-
-  @ManyToOne(() => Review)
-  review: Review;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventLog } from '../eventLog/entites/eventLog.entity';
 import { Place } from '../place/entities/place.entity';
+import { PointLog } from '../pointLog/entities/pointLog.entity';
 import { ReviewImage } from '../reviewImage/entities/reviewImage.entity';
 import { User } from '../user/entities/user.entity';
 import { Review } from './entities/review.entity';
@@ -10,7 +12,7 @@ import { ReviewEventsHandler } from './review.eventHandler';
 import { ReviewService } from './review.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Review, ReviewImage, Place, User]), CqrsModule],
+  imports: [TypeOrmModule.forFeature([Review, ReviewImage, Place, User, EventLog, PointLog]), CqrsModule],
   controllers: [ReviewController],
   providers: [ReviewService, ReviewEventsHandler],
 })
