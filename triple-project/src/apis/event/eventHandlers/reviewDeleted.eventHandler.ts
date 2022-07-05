@@ -1,29 +1,29 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Review } from 'src/apis/review/entities/review.entity';
 import { Repository } from 'typeorm';
-import { EventLog } from '../eventLog/entites/eventLog.entity';
-import { PointLog } from '../pointLog/entities/pointLog.entity';
-import { User } from '../user/entities/user.entity';
-import { Review } from './entities/review.entity';
-import { ReviewAddPointEvent, ReviewCreatedEvent } from './event/review.events';
+import { Event } from '../entites/event.entity';
+import { PointLog } from '../../pointLog/entities/pointLog.entity';
+import { User } from '../../user/entities/user.entity';
+import { ReviewDeletedPointEvent, ReviewDeletedEvent } from '../events/reviewDeleted.event';
 
-@EventsHandler(ReviewCreatedEvent, ReviewAddPointEvent)
-export class ReviewEventHandler implements IEventHandler<ReviewCreatedEvent | ReviewAddPointEvent> {
+@EventsHandler(ReviewDeletedEvent, ReviewDeletedPointEvent)
+export class ReviewDeletedHandler implements IEventHandler<ReviewDeletedEvent | ReviewDeletedPointEvent> {
   constructor(
-    @InjectRepository(EventLog) private readonly eventLogRepository: Repository<EventLog>, //
+    @InjectRepository(Event) private readonly eventRepository: Repository<Event>, //
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Review) private readonly reviewRepository: Repository<Review>,
     @InjectRepository(PointLog) private readonly pointLogRepository: Repository<PointLog>,
   ) {}
 
-  async handle(event: ReviewCreatedEvent | ReviewAddPointEvent) {
+  async handle(event: ReviewDeletedEvent | ReviewDeletedPointEvent) {
     switch (event.name) {
-      case ReviewCreatedEvent.name: {
+      case ReviewDeletedEvent.name: {
         const { name, attachedPhotoIds, ...rest } = event;
         const imagesString = JSON.stringify(event.attachedPhotoIds);
-        await this.eventLogRepository.save({ ...rest, attachedPhotoIds: imagesString });
+        await this.eventRepository.save({ ...rest, attachedPhotoIds: imagesString });
       }
-      case ReviewAddPointEvent.name: {
+      case ReviewDeletedPointEvent.name: {
         const result = await this.reviewRepository
           .createQueryBuilder('review')
           .where({ place: event.placeId })

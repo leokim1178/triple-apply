@@ -34,8 +34,7 @@ export class ReviewController {
     @Param('id') id: string, //
     @Body() updateReviewInput: UpdateReviewInput,
   ) {
-    const review = await this.reviewService.isExist({ reviewId: id });
-    return await this.reviewService.update({ review, updateReviewInput });
+    return await this.reviewService.update({ id, updateReviewInput });
   }
 
   @Delete(':id')

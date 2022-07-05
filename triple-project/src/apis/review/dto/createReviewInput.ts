@@ -1,5 +1,5 @@
 export class CreateReviewInput {
-  content?: string;
+  content: string;
   imgUrls?: string[];
   placeId: string;
   userId: string;

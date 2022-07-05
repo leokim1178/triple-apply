@@ -17,7 +17,7 @@ export class Review {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'longtext', nullable: true })
+  @Column({ type: 'longtext' })
   content: string;
 
   @ManyToOne(() => Place)
@@ -26,8 +26,15 @@ export class Review {
   @ManyToOne(() => User)
   user: User;
 
+  @Column({ default: 1 })
+  defaultPoint: number;
+  @Column()
+  imagePoint: number;
+  @Column()
+  bonusPoint: number;
+
   @OneToMany(() => ReviewImage, images => images.review, { cascade: true, nullable: true })
-  reviewImages: ReviewImage[];
+  reviewImages?: ReviewImage[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -11,11 +11,11 @@ export class ReviewCreatedEvent extends CqrsEvent implements IEvent {
     readonly userId: string,
     readonly reviewId: string,
     readonly placeId: string,
-    readonly attachedPhotoIds: string[],
     readonly type: Type,
     readonly action: Action,
+    readonly attachedPhotoIds?: string[],
   ) {
     super(ReviewCreatedEvent.name);
   }
 }
-export class ReviewAddPointEvent extends ReviewCreatedEvent {}
+export class ReviewCreatedPointEvent extends ReviewCreatedEvent {}

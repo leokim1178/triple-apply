@@ -6,8 +6,9 @@ import { Place } from '../place/entities/place.entity';
 import { ReviewImage } from '../reviewImage/entities/reviewImage.entity';
 import { User } from '../user/entities/user.entity';
 import { Review } from './entities/review.entity';
-import { ReviewCreatedEvent } from './event/review.events';
+import { ReviewCreatedEvent } from '../event/events/reviewCreated.event';
 import { Type, Action } from '../pointLog/type/pointLog.type';
+import { ReviewUpdatedEvent } from '../event/events/reviewUpdated.event';
 
 @Injectable()
 export class ReviewService {
@@ -28,11 +29,30 @@ export class ReviewService {
   }
 
   async create({ user, place, imgUrls, content }) {
-    const images = await Promise.all(
-      imgUrls.map(el => {
-        return this.reviewImageRepository.save({ url: el });
-      }),
-    );
+    let images;
+    let imagePoint = 0;
+    if (imgUrls.length > 0) {
+      images = await Promise.all(
+        imgUrls.map(el => {
+          return this.reviewImageRepository.save({ url: el });
+        }),
+      );
+      imagePoint++;
+    }
+
+    let bonusPoint = 0;
+    const reviewCount = await this.reviewRepository
+      .createQueryBuilder('review')
+      .where({ place: place.id })
+      .select('review.place', 'place')
+      .addSelect('COUNT(*) AS reviewCount')
+      .groupBy('review.place')
+      .getRawMany();
+    console.log(reviewCount);
+
+    if (reviewCount.length == 0) {
+      bonusPoint++;
+    }
 
     const isExist = await this.reviewRepository
       .createQueryBuilder('review')
@@ -48,39 +68,92 @@ export class ReviewService {
       place,
       content,
       reviewImages: images,
+      imagePoint,
+      bonusPoint,
     });
+
     const userId = user.id;
     const placeId = place.id;
     const reviewId = result.id;
-    const attachedPhotoIds = result.reviewImages.map(el => el.id);
+
     const type = Type.REVIEW;
     const action = Action.ADD;
+    let attachedPhotoIds;
+    if (result.reviewImages) {
+      attachedPhotoIds = result.reviewImages.map(el => el.id);
+    } else {
+      attachedPhotoIds = [];
+    }
+    // const event = {
+    //   content,
+    //   userId: user.id,
+    //   placeId: place.id,
+    //   reviewId: result.id,
+    //   type: Type.REVIEW,
+    //   action: Action.ADD,
+    //   attachedPhotoIds: result.reviewImages.map(el => el.id),
+    // };
 
-    const eventResult = await this.eventBus.publish(
-      new ReviewCreatedEvent(content, userId, reviewId, placeId, attachedPhotoIds, type, action),
+    await this.eventBus.publish(
+      new ReviewCreatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds),
     );
-    // await this.eventBus.publish(
-    //   new ReviewCreatedPointEvent(userId, reviewId, placeId, type, action, content, attachedPhotoIds),
-    // );
 
-    return new ReviewCreatedEvent(content, userId, reviewId, placeId, attachedPhotoIds, type, action);
+    return new ReviewCreatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds);
   }
 
-  async update({ review, updateReviewInput }) {
+  async update({ id, updateReviewInput }) {
+    const { imgUrls, content } = updateReviewInput;
+
+    const review = await this.reviewRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['user', 'place', 'reviewImages'],
+    });
+    if (!review) throw new NotFoundException(`리뷰 정보가 존재하지 않습니다`);
+
+    const lastImagePoint = review.imagePoint;
+
     const deleteResult = await this.reviewImageRepository.delete({ review });
     console.log(deleteResult);
     if (!deleteResult) throw new UnprocessableEntityException();
-    const { imgUrls, content } = updateReviewInput;
-    const images = await Promise.all(
-      imgUrls.map(el => {
-        return this.reviewImageRepository.save({ url: el });
-      }),
-    );
-    return await this.reviewRepository.save({
+
+    let images;
+    let imagePoint = 0;
+    if (imgUrls?.length > 0) {
+      images = await Promise.all(
+        imgUrls.map(el => {
+          return this.reviewImageRepository.save({ url: el });
+        }),
+      );
+      if (review.reviewImages?.length == 0 || review.reviewImages?.length > 0) {
+        imagePoint++;
+      }
+    }
+
+    const result = await this.reviewRepository.save({
       ...review,
       content,
       reviewImages: images,
+      imagePoint,
     });
+    const userId = review.user.id;
+    const placeId = result.place.id;
+    const reviewId = result.id;
+
+    const type = Type.REVIEW;
+    const action = Action.MOD;
+    let attachedPhotoIds;
+    if (result.reviewImages) {
+      attachedPhotoIds = result.reviewImages.map(el => el.id);
+    } else {
+      attachedPhotoIds = [];
+    }
+    await this.eventBus.publish(
+      new ReviewUpdatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds, lastImagePoint),
+    );
+
+    return new ReviewUpdatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds);
   }
 
   async delete({ id }) {
@@ -89,23 +162,28 @@ export class ReviewService {
   }
 
   async isExist({ reviewId, placeId, userId }: { reviewId?: string; placeId?: string; userId?: string }) {
-    if (reviewId) {
-      const review = await this.reviewRepository.findOne({ where: { id: reviewId } });
-      if (review) {
-        return review;
-      } else throw new NotFoundException(`리뷰 정보가 존재하지 않습니다`);
-    }
-    if (placeId) {
-      const place = await this.placeRepository.findOne({ where: { id: placeId } });
-      if (place) {
-        return place;
-      } else throw new NotFoundException('장소 정보가 존재하지 않습니다');
-    }
-    if (userId) {
-      const user = await this.userRepository.findOne({ where: { id: userId } });
-      if (user) {
-        return user;
-      } else throw new NotFoundException('유저 정보가 존재하지 않습니다');
+    const id = reviewId || placeId || userId;
+    switch (id) {
+      case reviewId: {
+        const review = await this.reviewRepository.findOne({ where: { id: reviewId } });
+        if (review) {
+          return review;
+        } else throw new NotFoundException(`리뷰 정보가 존재하지 않습니다`);
+      }
+      case placeId: {
+        const place = await this.placeRepository.findOne({ where: { id: placeId } });
+        if (place) {
+          return place;
+        } else throw new NotFoundException('장소 정보가 존재하지 않습니다');
+      }
+      case userId: {
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (user) {
+          return user;
+        } else throw new NotFoundException('유저 정보가 존재하지 않습니다');
+      }
+      default:
+        break;
     }
   }
 }

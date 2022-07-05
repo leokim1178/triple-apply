@@ -1,4 +1,4 @@
 export class UpdateReviewInput {
-  content?: string;
+  content: string;
   imgUrls?: string[];
 }

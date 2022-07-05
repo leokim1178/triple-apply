@@ -5,12 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './apis/user/user.module';
 import { PlaceModule } from './apis/place/place.module';
 import { ReviewModule } from './apis/review/review.module';
+import { EventModule } from './apis/event/event.module';
 
 @Module({
   imports: [
     UserModule,
     PlaceModule,
     ReviewModule,
+    EventModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'database-server',

@@ -1,9 +1,9 @@
 import { Action, Type } from 'src/apis/pointLog/type/pointLog.type';
 
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
-export class EventLog {
+export class Event {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column()
@@ -20,4 +20,7 @@ export class EventLog {
   type: Type;
   @Column()
   action: Action;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
