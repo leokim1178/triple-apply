@@ -6,7 +6,7 @@ import { Review } from '../review/entities/review.entity';
 import { User } from '../user/entities/user.entity';
 import { Event } from './entites/event.entity';
 import { EventController } from './event.controller';
-import { ReviewCreatedHandler } from './eventHandlers/reviewCreated.eventHandler';
+import { ReviewCreatedHandler } from '../review/eventHandlers/reviewCreated.eventHandler';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Event, User, Review, PointLog]), CqrsModule],

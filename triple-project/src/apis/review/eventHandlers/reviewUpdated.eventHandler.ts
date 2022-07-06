@@ -2,13 +2,13 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from 'src/apis/review/entities/review.entity';
 import { Repository } from 'typeorm';
-import { Event } from '../entites/event.entity';
+import { Event } from '../../event/entites/event.entity';
 import { PointLog } from '../../pointLog/entities/pointLog.entity';
 import { User } from '../../user/entities/user.entity';
-import { ReviewCreatedEvent, ReviewCreatedPointEvent } from '../events/reviewCreated.event';
+import { ReviewUpdatedEvent, ReviewUpdatedPointEvent } from '../events/reviewUpdated.event';
 
-@EventsHandler(ReviewCreatedEvent, ReviewCreatedPointEvent)
-export class ReviewCreatedHandler implements IEventHandler<ReviewCreatedEvent | ReviewCreatedPointEvent> {
+@EventsHandler(ReviewUpdatedEvent, ReviewUpdatedPointEvent)
+export class ReviewUpdatedHandler implements IEventHandler<ReviewUpdatedEvent | ReviewUpdatedPointEvent> {
   constructor(
     @InjectRepository(Event) private readonly eventRepository: Repository<Event>, //
     @InjectRepository(User) private readonly userRepository: Repository<User>,
@@ -16,23 +16,21 @@ export class ReviewCreatedHandler implements IEventHandler<ReviewCreatedEvent | 
     @InjectRepository(PointLog) private readonly pointLogRepository: Repository<PointLog>,
   ) {}
 
-  async handle(event: ReviewCreatedEvent | ReviewCreatedPointEvent) {
+  async handle(event: ReviewUpdatedEvent | ReviewUpdatedPointEvent) {
     switch (event.name) {
-      case ReviewCreatedEvent.name: {
-        const { name, attachedPhotoIds, ...rest } = event;
+      case ReviewUpdatedEvent.name: {
+        const { name, lastImagePoint, attachedPhotoIds, ...rest } = event;
         const imagesString = JSON.stringify(event.attachedPhotoIds);
         await this.eventRepository.save({ ...rest, attachedPhotoIds: imagesString });
       }
-      case ReviewCreatedPointEvent.name: {
+      case ReviewUpdatedPointEvent.name: {
         const review = await this.reviewRepository.findOne({ where: { id: event.reviewId } });
-
-        const createdPoint = review.imagePoint + review.bonusPoint + review.defaultPoint;
-
+        const updatedPoint = review.imagePoint - event.lastImagePoint;
         const user = await this.userRepository.findOne({ where: { id: event.userId } });
 
-        const updateUser = await this.userRepository.save({ ...user, point: user.point + createdPoint });
+        const updateUser = await this.userRepository.save({ ...user, point: user.point + updatedPoint });
         await this.pointLogRepository.save({
-          point: createdPoint,
+          point: updatedPoint,
           total: updateUser.point,
           type: event.type,
           action: event.action,

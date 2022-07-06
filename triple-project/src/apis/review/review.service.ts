@@ -6,10 +6,12 @@ import { Place } from '../place/entities/place.entity';
 import { ReviewImage } from '../reviewImage/entities/reviewImage.entity';
 import { User } from '../user/entities/user.entity';
 import { Review } from './entities/review.entity';
-import { ReviewCreatedEvent } from '../event/events/reviewCreated.event';
+
 import { Type, Action } from '../pointLog/type/pointLog.type';
-import { ReviewUpdatedEvent } from '../event/events/reviewUpdated.event';
+
 import { ReviewEventOutput } from './dto/ReviewOutput';
+import { ReviewCreatedEvent } from './events/reviewCreated.events';
+import { ReviewUpdatedEvent } from './events/reviewUpdated.event';
 
 @Injectable()
 export class ReviewService {

@@ -10,7 +10,7 @@ export class CreateReviewInput {
   })
   imgUrls?: string[];
 
-  @ApiProperty({ description: '리뷰가 작성된 장소 Id(uuid)', example: 'uuid' })
+  @ApiProperty({ description: '리뷰가 작성된 여행지 Id(uuid)', example: 'uuid' })
   placeId: string;
 
   @ApiProperty({ description: '리뷰의 작성자 Id(uuid)', example: 'uuid' })

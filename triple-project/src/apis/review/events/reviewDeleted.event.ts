@@ -11,9 +11,10 @@ export class ReviewDeletedEvent extends CqrsEvent implements IEvent {
     readonly userId: string,
     readonly reviewId: string,
     readonly placeId: string,
-    readonly attachedPhotoIds: string[],
     readonly type: Type,
     readonly action: Action,
+    readonly attachedPhotoIds?: string[],
+    readonly lastImagePoint?: number,
   ) {
     super(ReviewDeletedEvent.name);
   }
