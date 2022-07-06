@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CreatePlaceInput } from './dto/createPlaceInput';
 import { UpdatePlaceInput } from './dto/updatePlaceInput';
 import { PlaceService } from './place.service';
 
+@ApiTags('여행지')
 @Controller('place')
 export class PlaceController {
   constructor(private readonly placeService: PlaceService) {}

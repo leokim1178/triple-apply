@@ -6,6 +6,7 @@ import { BaseApiDocumentation } from './config/baseApiDocs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('/api');
 
   const documentOptions = new BaseApiDocumentation().initializeOptions();
   const document = SwaggerModule.createDocument(app, documentOptions);

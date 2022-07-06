@@ -1,14 +1,17 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateReviewInput } from './dto/createReviewInput';
 import { UpdateReviewInput } from './dto/updateReviewInput';
 import { ReviewService } from './review.service';
 
+@ApiTags('리뷰')
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService, private commandBus: CommandBus) {}
 
   @Get(':id')
+  @ApiOperation({ description: '리뷰 조회 api입니다', summary: '리뷰 조회' })
   fetchReview(@Param('id') id: string) {
     return this.reviewService.fetch({ id });
   }
