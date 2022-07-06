@@ -7,7 +7,7 @@ import { ReviewImage } from '../reviewImage/entities/reviewImage.entity';
 import { User } from '../user/entities/user.entity';
 import { Review } from './entities/review.entity';
 
-import { Type, Action } from '../../config/type/pointLog.type';
+import { Type, Action } from '../event/type/event.type';
 
 import {
   ReviewLogEvent,

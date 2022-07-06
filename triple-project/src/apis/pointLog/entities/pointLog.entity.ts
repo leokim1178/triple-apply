@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Review } from 'src/apis/review/entities/review.entity';
 import { User } from 'src/apis/user/entities/user.entity';
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Action, Type } from '../../../config/type/pointLog.type';
+import { Action, Type } from '../../event/type/event.type';
 
 @Entity()
 export class PointLog {

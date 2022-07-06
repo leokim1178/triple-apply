@@ -1,5 +1,5 @@
 import { IEvent } from '@nestjs/cqrs';
-import { Action, Type } from 'src/config/type/pointLog.type';
+import { Action, Type } from 'src/apis/event/type/event.type';
 
 export abstract class CqrsEvent {
   constructor(readonly name: string) {}

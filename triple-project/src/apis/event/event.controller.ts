@@ -3,7 +3,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Action } from '../../config/type/pointLog.type';
+import { Action } from './type/event.type';
 import { Review } from '../review/entities/review.entity';
 
 import { EventInput } from './dto/reviewEventInput';
