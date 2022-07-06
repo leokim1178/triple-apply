@@ -9,6 +9,7 @@ import { Review } from './entities/review.entity';
 import { ReviewCreatedEvent } from '../event/events/reviewCreated.event';
 import { Type, Action } from '../pointLog/type/pointLog.type';
 import { ReviewUpdatedEvent } from '../event/events/reviewUpdated.event';
+import { ReviewEventOutput } from './dto/ReviewOutput';
 
 @Injectable()
 export class ReviewService {
@@ -98,7 +99,8 @@ export class ReviewService {
       new ReviewCreatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds),
     );
 
-    return new ReviewCreatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds);
+    const output: ReviewEventOutput = { content, userId, reviewId, placeId, type, action, attachedPhotoIds };
+    return output;
   }
 
   async update({ id, updateReviewInput }) {

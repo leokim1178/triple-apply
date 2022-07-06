@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserInput {
   @ApiProperty({ description: '이메일 주소', example: 'leo3179@naver.com' })

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Patch, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserInput } from './dto/createUserInput';
 import { UpdateUserInput } from './dto/updateUserInput';
 import { User } from './entities/user.entity';
@@ -13,9 +13,9 @@ export class UserController {
   //
   @Get()
   @ApiResponse({ type: User, status: 200, description: '유저 정보 조회 성공' })
-  @ApiQuery({ name: 'email', example: 'leo3179@naver.com' })
+  @ApiParam({ name: 'email', example: 'leo3179@naver.com' })
   @ApiOperation({ description: '유저 조회 api입니다', summary: '유저 조회' })
-  fetchUser(@Query('email') email: string) {
+  fetchUser(@Query('email') email: string): Promise<User> {
     return this.userService.fetch({ email });
   }
 
@@ -23,21 +23,19 @@ export class UserController {
   @Get('list')
   @ApiResponse({ type: User, isArray: true, status: 200, description: '유저 리스트 조회 성공' })
   @ApiOperation({ description: '유저 리스트 조회 api입니다', summary: '유저 리스트 조회' })
-  fetchUsers() {
+  fetchUsers(): Promise<User[]> {
     return this.userService.fetchAll();
   }
 
   //
   @Post()
   @ApiResponse({ type: User, status: 200, description: '유저 생성 성공' })
-  @ApiBody({
-    type: CreateUserInput,
-  })
+  @ApiBody({ type: CreateUserInput })
   @ApiOperation({ description: '유저 생성 api입니다', summary: '유저 생성' })
   createUser(
     @Body()
     createUserInput: CreateUserInput,
-  ) {
+  ): Promise<User> {
     return this.userService.create({ createUserInput });
   }
 
@@ -53,7 +51,7 @@ export class UserController {
     @Query('email') email: string,
     @Body()
     updateUserInput: UpdateUserInput,
-  ) {
+  ): Promise<User> {
     return this.userService.update({ email, updateUserInput });
   }
 
@@ -62,7 +60,7 @@ export class UserController {
   @ApiResponse({ type: Boolean, status: 200, description: '유저 정보 삭제 성공' })
   @ApiQuery({ name: 'email', example: 'leo3179@naver.com' })
   @ApiOperation({ description: '유저 정보 삭제 api입니다', summary: '유저 정보 삭제' })
-  deleteUser(@Query('email') email: string) {
+  deleteUser(@Query('email') email: string): Promise<boolean> {
     return this.userService.delete({ email });
   }
 }

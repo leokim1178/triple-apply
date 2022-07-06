@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateReviewInput } from './dto/createReviewInput';
+import { ReviewEventOutput } from './dto/ReviewOutput';
 import { UpdateReviewInput } from './dto/updateReviewInput';
+import { Review } from './entities/review.entity';
 import { ReviewService } from './review.service';
 
 @ApiTags('리뷰')
@@ -11,20 +13,27 @@ export class ReviewController {
   constructor(private readonly reviewService: ReviewService, private commandBus: CommandBus) {}
 
   @Get(':id')
+  @ApiResponse({ type: Review, status: 200, description: '리뷰 정보 조회 성공' })
+  @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
   @ApiOperation({ description: '리뷰 조회 api입니다', summary: '리뷰 조회' })
-  fetchReview(@Param('id') id: string) {
+  fetchReview(@Param('id') id: string): Promise<Review> {
     return this.reviewService.fetch({ id });
   }
 
-  @Get()
-  fetchReviews() {
+  @Get('list')
+  @ApiResponse({ type: Review, isArray: true, status: 200, description: '리뷰 리스트 조회 성공' })
+  @ApiOperation({ description: '리뷰 리스트 조회 api입니다', summary: '리뷰 리스트 조회' })
+  fetchReviews(): Promise<Review[]> {
     return this.reviewService.fetchAll();
   }
 
   @Post()
+  @ApiResponse({ type: ReviewEventOutput, status: 200, description: '리뷰 생성 성공' })
+  @ApiOperation({ description: '리뷰 생성 api입니다', summary: '리뷰 생성' })
+  @ApiBody({ type: CreateReviewInput })
   async createReview(
     @Body() createReviewInput: CreateReviewInput, //
-  ) {
+  ): Promise<ReviewEventOutput> {
     const { placeId, imgUrls, content, userId } = createReviewInput;
 
     const place = await this.reviewService.isExist({ placeId });
@@ -33,15 +42,22 @@ export class ReviewController {
   }
 
   @Patch(':id')
+  @ApiResponse({ type: ReviewEventOutput, status: 200, description: '리뷰 수정 성공' })
+  @ApiOperation({ description: '리뷰 수정 api입니다', summary: '리뷰 수정' })
+  @ApiBody({ type: UpdateReviewInput })
+  @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
   async updateReview(
     @Param('id') id: string, //
     @Body() updateReviewInput: UpdateReviewInput,
-  ) {
+  ): Promise<ReviewEventOutput> {
     return await this.reviewService.update({ id, updateReviewInput });
   }
 
   @Delete(':id')
-  deleteReview(@Param('id') id: string) {
+  @ApiResponse({ type: ReviewEventOutput, status: 200, description: '리뷰 삭제 성공' })
+  @ApiOperation({ description: '리뷰 삭제 api입니다', summary: '리뷰 삭제' })
+  @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
+  deleteReview(@Param('id') id: string): Promise<boolean> {
     return this.reviewService.delete({ id });
   }
 }
