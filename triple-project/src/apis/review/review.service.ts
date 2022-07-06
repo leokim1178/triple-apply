@@ -7,11 +7,14 @@ import { ReviewImage } from '../reviewImage/entities/reviewImage.entity';
 import { User } from '../user/entities/user.entity';
 import { Review } from './entities/review.entity';
 
-import { Type, Action } from '../pointLog/type/pointLog.type';
+import { Type, Action } from '../../config/type/pointLog.type';
 
-import { ReviewEventOutput } from './dto/ReviewOutput';
-import { ReviewCreatedEvent } from './events/reviewCreated.events';
-import { ReviewUpdatedEvent } from './events/reviewUpdated.event';
+import {
+  ReviewLogEvent,
+  ReviewCreatedPointEvent,
+  ReviewUpdatedPointEvent,
+  ReviewDeletedPointEvent,
+} from '../event/events/review.events';
 
 @Injectable()
 export class ReviewService {
@@ -87,22 +90,15 @@ export class ReviewService {
     } else {
       attachedPhotoIds = [];
     }
-    // const event = {
-    //   content,
-    //   userId: user.id,
-    //   placeId: place.id,
-    //   reviewId: result.id,
-    //   type: Type.REVIEW,
-    //   action: Action.ADD,
-    //   attachedPhotoIds: result.reviewImages.map(el => el.id),
-    // };
 
-    await this.eventBus.publish(
-      new ReviewCreatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds),
+    const eventLog = await this.eventBus.publish(
+      new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds),
     );
+    const pointLog = await this.eventBus.publish(new ReviewCreatedPointEvent(userId, reviewId, type, action));
+    console.log(eventLog);
+    console.log(pointLog);
 
-    const output: ReviewEventOutput = { content, userId, reviewId, placeId, type, action, attachedPhotoIds };
-    return output;
+    return result;
   }
 
   async update({ id, updateReviewInput }) {
@@ -153,14 +149,27 @@ export class ReviewService {
     } else {
       attachedPhotoIds = [];
     }
-    await this.eventBus.publish(
-      new ReviewUpdatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds, lastImagePoint),
-    );
+    this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
+    this.eventBus.publish(new ReviewUpdatedPointEvent(userId, reviewId, type, action, lastImagePoint));
 
-    return new ReviewUpdatedEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds);
+    return result;
   }
 
   async delete({ id }) {
+    const review = await this.reviewRepository.findOne({ where: { id }, relations: ['user', 'place', 'reviewImages'] });
+    if (!review) throw new NotFoundException(`리뷰 정보가 존재하지 않습니다`);
+
+    const content = review.content;
+    const userId = review.user.id;
+    const reviewId = id;
+    const placeId = review.place.id;
+    const type = Type.REVIEW;
+    const action = Action.DELETE;
+    const attachedPhotoIds = review.reviewImages?.map(el => el.id);
+    const reviewPoint = review.defaultPoint + review.imagePoint + review.bonusPoint;
+
+    this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
+    this.eventBus.publish(new ReviewDeletedPointEvent(userId, reviewId, type, action, reviewPoint));
     const result = await this.reviewRepository.softDelete({ id });
     return result.affected ? true : false;
   }

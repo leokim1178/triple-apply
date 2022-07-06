@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateReviewInput } from './dto/createReviewInput';
-import { ReviewEventOutput } from './dto/ReviewOutput';
 import { UpdateReviewInput } from './dto/updateReviewInput';
 import { Review } from './entities/review.entity';
 import { ReviewService } from './review.service';
@@ -28,12 +27,12 @@ export class ReviewController {
   }
 
   @Post()
-  @ApiResponse({ type: ReviewEventOutput, status: 200, description: '리뷰 생성 성공' })
+  @ApiResponse({ type: Review, status: 200, description: '리뷰 생성 성공' })
   @ApiOperation({ description: '리뷰 생성 api입니다', summary: '리뷰 생성' })
   @ApiBody({ type: CreateReviewInput })
   async createReview(
     @Body() createReviewInput: CreateReviewInput, //
-  ): Promise<ReviewEventOutput> {
+  ): Promise<Review> {
     const { placeId, imgUrls, content, userId } = createReviewInput;
 
     const place = await this.reviewService.isExist({ placeId });
@@ -42,19 +41,19 @@ export class ReviewController {
   }
 
   @Patch(':id')
-  @ApiResponse({ type: ReviewEventOutput, status: 200, description: '리뷰 수정 성공' })
+  @ApiResponse({ type: Review, status: 200, description: '리뷰 수정 성공' })
   @ApiOperation({ description: '리뷰 수정 api입니다', summary: '리뷰 수정' })
   @ApiBody({ type: UpdateReviewInput })
   @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
   async updateReview(
     @Param('id') id: string, //
     @Body() updateReviewInput: UpdateReviewInput,
-  ): Promise<ReviewEventOutput> {
+  ): Promise<Review> {
     return await this.reviewService.update({ id, updateReviewInput });
   }
 
   @Delete(':id')
-  @ApiResponse({ type: ReviewEventOutput, status: 200, description: '리뷰 삭제 성공' })
+  @ApiResponse({ type: Boolean, status: 200, description: '리뷰 삭제 성공' })
   @ApiOperation({ description: '리뷰 삭제 api입니다', summary: '리뷰 삭제' })
   @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
   deleteReview(@Param('id') id: string): Promise<boolean> {

@@ -6,11 +6,13 @@ import { Review } from '../review/entities/review.entity';
 import { User } from '../user/entities/user.entity';
 import { Event } from './entites/event.entity';
 import { EventController } from './event.controller';
-import { ReviewCreatedHandler } from '../review/eventHandlers/reviewCreated.eventHandler';
+
+import { EventService } from './event.service';
+import { ReviewEventHandler } from './eventHandlers/reviewEvent.handler';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Event, User, Review, PointLog]), CqrsModule],
   controllers: [EventController],
-  providers: [ReviewCreatedHandler],
+  providers: [ReviewEventHandler, EventService],
 })
 export class EventModule {}

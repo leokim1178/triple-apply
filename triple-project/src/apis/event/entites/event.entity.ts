@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Action, Type } from 'src/apis/pointLog/type/pointLog.type';
+import { Action, Type } from 'src/config/type/pointLog.type';
 
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 

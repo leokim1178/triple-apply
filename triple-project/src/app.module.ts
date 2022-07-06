@@ -6,6 +6,7 @@ import { UserModule } from './apis/user/user.module';
 import { PlaceModule } from './apis/place/place.module';
 import { ReviewModule } from './apis/review/review.module';
 import { EventModule } from './apis/event/event.module';
+import { PointLogModule } from './apis/pointLog/pointLog.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EventModule } from './apis/event/event.module';
     PlaceModule,
     ReviewModule,
     EventModule,
+    PointLogModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'database-server',

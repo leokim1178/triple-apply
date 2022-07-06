@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Review } from 'src/apis/review/entities/review.entity';
 import { User } from 'src/apis/user/entities/user.entity';
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Action, Type } from '../type/pointLog.type';
+import { Action, Type } from '../../../config/type/pointLog.type';
 
 @Entity()
 export class PointLog {
@@ -35,6 +36,14 @@ export class PointLog {
   })
   @ManyToOne(() => User)
   user: User;
+
+  @ApiPropertyOptional({
+    type: () => Review,
+    description: '이벤트를 발생시킨 리뷰 Id(uuid)',
+    example: '8da0c653-167d-472c-83d4-c09fa674bc60',
+  })
+  @ManyToOne(() => Review)
+  review: Review;
 
   @ApiProperty({
     example: '2022-07-06 19:23:15.100208000',
