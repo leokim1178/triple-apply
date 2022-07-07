@@ -11,7 +11,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       exception instanceof HttpException //
         ? Number(exception.getStatus())
         : HttpStatus.INTERNAL_SERVER_ERROR;
+
     const message = exception.message;
+
     console.log('==========');
     console.log('에러 발생!');
     console.log('에러코드: ', status);
@@ -20,7 +22,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response.status(status).json({
       statusCode: status,
       message,
-      timestamp: new Date().getTime(),
+      timestamp: new Date(),
     });
   }
 }
