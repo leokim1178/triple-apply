@@ -5,7 +5,7 @@ export class UpdateReviewInput {
   content: string;
 
   @ApiProperty({
-    description: '리뷰에 첨부된 이미지 Id 배열',
+    description: '리뷰에 첨부된 이미지 url 배열',
     nullable: true,
     isArray: true,
     example: ['photo3.png', 'photo4.jpg'],

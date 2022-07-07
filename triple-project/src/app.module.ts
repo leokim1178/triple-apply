@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './apis/user/user.module';
 import { PlaceModule } from './apis/place/place.module';
@@ -30,7 +28,5 @@ import { PointLogModule } from './apis/pointLog/pointLog.module';
       timezone: 'Z',
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

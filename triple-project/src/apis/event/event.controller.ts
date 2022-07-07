@@ -40,7 +40,10 @@ export class EventController {
     const type = event.type;
     const action = event.action;
     const attachedPhotoIds = event.attachedPhotoIds;
-    this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
+
+    const logEvent = new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds);
+
+    this.eventBus.publish(logEvent);
 
     const review = await this.reviewRepository.findOne({
       where: {
@@ -65,6 +68,6 @@ export class EventController {
       this.eventBus.publish(new ReviewDeletedPointEvent(userId, reviewId, type, action, reviewPoint));
     }
 
-    return new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds);
+    return logEvent;
   }
 }
