@@ -16,7 +16,9 @@ export class PlaceService {
     return place;
   }
   async fetchAll() {
-    return await this.placeRepository.find();
+    const result = await this.placeRepository.find({});
+    console.log(result);
+    return result;
   }
   async create({ createPlaceInput }) {
     return await this.placeRepository.save({ ...createPlaceInput });

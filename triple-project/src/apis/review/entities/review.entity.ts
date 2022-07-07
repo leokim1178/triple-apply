@@ -31,7 +31,7 @@ export class Review {
     description: '리뷰가 작성된 여행지 Id(uuid)',
     example: '1eeadb33-350e-4c51-8ef0-7e8667bd181c',
   })
-  @ManyToOne(() => Place)
+  @ManyToOne(() => Place, { onDelete: 'CASCADE' })
   place: Place;
 
   @ApiPropertyOptional({
@@ -39,7 +39,7 @@ export class Review {
     description: '리뷰의 작성자 Id(uuid)',
     example: '8da0c653-167d-472c-83d4-c09fa674bc60',
   })
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 
   @ApiProperty({ description: '리뷰에 할당된 기본 포인트', example: 1 })

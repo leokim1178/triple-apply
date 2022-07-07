@@ -34,7 +34,7 @@ export class PointLog {
     description: '이벤트를 발생시킨 유저 Id(uuid)',
     example: '8da0c653-167d-472c-83d4-c09fa674bc60',
   })
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 
   @ApiPropertyOptional({
@@ -42,7 +42,7 @@ export class PointLog {
     description: '이벤트를 발생시킨 리뷰 Id(uuid)',
     example: '8da0c653-167d-472c-83d4-c09fa674bc60',
   })
-  @ManyToOne(() => Review)
+  @ManyToOne(() => Review, { onDelete: 'CASCADE' })
   review: Review;
 
   @ApiProperty({

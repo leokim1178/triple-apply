@@ -23,7 +23,7 @@ import { PointLogService } from './pointLog.service';
 export class PointLogController {
   constructor(private readonly pointLogService: PointLogService) {}
 
-  @Get(':userId')
+  @Get()
   @ApiResponse({
     type: RecentPointOutput,
     status: 200,
@@ -38,15 +38,15 @@ export class PointLogController {
     `,
     summary: '유저 최근 포인트 로그 조회',
   })
-  @ApiParam({ name: 'userId', description: '유저의 PK(uuid)입니다' })
+  @ApiQuery({ name: 'userId', description: '유저의 PK(uuid)입니다' })
   fetchRecentLog(
-    @Param('userId')
+    @Query('userId')
     userId: string,
   ): Promise<RecentPointOutput> {
     return this.pointLogService.findRecentLog({ userId });
   }
 
-  @Get('list/:userId')
+  @Get(':userId')
   @ApiResponse({
     type: PointLogsOutput,
     status: 200,

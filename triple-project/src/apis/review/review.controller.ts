@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, ValidationPipe } from '@nestjs/common';
 
 import {
   ApiBody,
@@ -6,6 +6,7 @@ import {
   ApiNotFoundResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
   ApiUnprocessableEntityResponse,
@@ -26,12 +27,12 @@ import { ReviewService } from './review.service';
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
-  @Get(':id')
+  @Get()
   @ApiResponse({ type: Review, status: 200, description: '리뷰 정보 조회 성공' })
   @ApiNotFoundResponse({ status: 404, description: '리뷰 정보가 존재하지 않습니다' })
-  @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
+  @ApiQuery({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
   @ApiOperation({ description: '리뷰 조회 api입니다', summary: '리뷰 조회' })
-  fetchReview(@Param('id') id: string): Promise<Review> {
+  fetchReview(@Query('id') id: string): Promise<Review> {
     return this.reviewService.fetch({ id });
   }
 
@@ -44,7 +45,7 @@ export class ReviewController {
   }
 
   @Post()
-  @ApiResponse({ type: Review, status: 200, description: '리뷰 생성 성공' })
+  @ApiResponse({ type: Review, status: 201, description: '리뷰 생성 성공' })
   @ApiNotFoundResponse({ status: 404, description: '리뷰 정보가 존재하지 않습니다' })
   @ApiUnprocessableEntityResponse({ status: 422, description: '장소에 대한 리뷰가 이미 존재합니다' })
   @ApiInternalServerErrorResponse({ status: 500, description: '서버 내부 오류입니다' })

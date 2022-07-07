@@ -36,7 +36,7 @@ export class EventController {
   ) {}
 
   @Post()
-  @ApiResponse({ type: ReviewLogEvent, status: 200, description: '이벤트 생성 성공' })
+  @ApiResponse({ type: ReviewLogEvent, status: 201, description: '이벤트 생성 성공' })
   @ApiBadRequestResponse({ status: 400, description: '올바른 요청이 아닙니다' })
   @ApiNotFoundResponse({ status: 404, description: '리뷰 정보가 존재하지 않습니다' })
   @ApiOperation({

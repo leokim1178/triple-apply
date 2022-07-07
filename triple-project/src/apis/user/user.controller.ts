@@ -19,7 +19,7 @@ export class UserController {
   @Get()
   @ApiResponse({ type: User, status: 200, description: '유저 정보 조회 성공' })
   @ApiNotFoundResponse({ status: 404, description: '유저 정보가 존재하지 않습니다' })
-  @ApiParam({ name: 'email', example: 'leo3179@naver.com' })
+  @ApiQuery({ name: 'email', example: 'leo3179@naver.com' })
   @ApiOperation({ description: '유저 조회 api입니다', summary: '유저 조회' })
   fetchUser(@Query('email') email: string): Promise<User> {
     return this.userService.fetch({ email });
@@ -34,7 +34,7 @@ export class UserController {
   }
 
   @Post()
-  @ApiResponse({ type: User, status: 200, description: '유저 생성 성공' })
+  @ApiResponse({ type: User, status: 201, description: '유저 생성 성공' })
   @ApiBody({ type: CreateUserInput })
   @ApiOperation({ description: '유저 생성 api입니다', summary: '유저 생성' })
   createUser(

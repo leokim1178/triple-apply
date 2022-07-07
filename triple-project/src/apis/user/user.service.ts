@@ -30,8 +30,8 @@ export class UserService {
   }
 
   async delete({ email }) {
-    await this.fetch({ email });
-    const result = await this.userRepository.delete({ email });
+    const user = await this.fetch({ email });
+    const result = await this.userRepository.delete({ id: user.id });
     return result.affected ? true : false;
   }
 }
