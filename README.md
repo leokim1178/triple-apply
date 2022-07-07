@@ -32,6 +32,7 @@ docker-compose up
 - docker로 서버 실행 후
 - http://localhost:3001/api-docs/ 로 접속
 - swagger api-docs에서 api를 테스팅하실 수 있습니다
+- controller 데코레이터 위에 api관련 swagger docs 주소가 comment 되어 있습니다..!
 
 <br>
 
@@ -50,12 +51,13 @@ docker-compose up
 **구현 전략**
 
 - 따라서 리뷰에 관한 api가 실행시, 동시에 진행되는 이벤트 로직을 분리해야겠다고 판단
-- CQRS 패턴의 event-eventHandler 기능을 사용하기로 결정했습니다
+- CQRS 패턴의 event-eventHandler 기능을 사용하기로 결정
   - CQRS는 커맨드(Command)와 쿼리(Query)를 분리, 즉 쓰기와 읽기를 분리하여 성능을 높이는데 이용됩니다.
   - 읽기와 쓰기 간의 큰 성능 차이가 있는 경우, 이를 분리시켜 사용하여 성능을 높입니다
   - 한번의 호출에 필요한 기능이 여러개인 경우에도 사용하면 성능을 크게 높일 수 있다고 판단했고 이는 이벤트 기반 프로그래밍 모델과 친화적이라고 생각했습니다.
   - @nestjs/cqrs 모듈을 사용해 리뷰 CUD 로직과 이벤트 로그, 포인트 로그&포인트 수정 로직을 분리하여 요구사항의 로직을 구현하였습니다.
-- 도커를 활용하여 리눅스 환경에서 작업했습니다
+- 도커를 활용하여 리눅스 환경에서 작업
+- 요구사항 외로 필요한 table들에 관해 기본적인 crud 기능만 구현했습니다
 
 <br>
 
