@@ -24,6 +24,7 @@ import {
  * @author leokim1178
  * @summary 이벤트 관련 api입니다
  * @link http://localhost:3001/api-docs/#/%EC%9D%B4%EB%B2%A4%ED%8A%B8
+ * @description api 설명은 주석 대신 swagger description으로 대체했습니다
  */
 @ApiTags('이벤트')
 @Controller('events')
@@ -38,7 +39,14 @@ export class EventController {
   @ApiResponse({ type: ReviewLogEvent, status: 200, description: '이벤트 생성 성공' })
   @ApiBadRequestResponse({ status: 400, description: '올바른 요청이 아닙니다' })
   @ApiNotFoundResponse({ status: 404, description: '리뷰 정보가 존재하지 않습니다' })
-  @ApiOperation({ description: '이벤트 생성 api입니다', summary: '이벤트 생성' })
+  @ApiOperation({
+    description: `
+    이벤트 생성 api입니다
+    event enum type(REVIEW)과 enum action(ADD,MOD,DELETE)을 검증하여 eventBus를 통해 eventHandler에 전달합니다
+    eventHandler는 이벤트 로그 저장과 유저 포인트 저장&포인트 로그 저장을 수행합니다
+    `,
+    summary: '이벤트 생성',
+  })
   @ApiBody({ type: EventInput })
   async createReviewEvent(@Body(ValidationPipe) event: EventInput): Promise<ReviewLogEvent> {
     const content = event.content;

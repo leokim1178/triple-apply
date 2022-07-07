@@ -16,6 +16,7 @@ import { PointLogService } from './pointLog.service';
  * @author leokim1178
  * @summary 포인트 로그 관련 api입니다
  * @link http://localhost:3001/api-docs/#/%ED%8F%AC%EC%9D%B8%ED%8A%B8%20%EB%A1%9C%EA%B7%B8
+ * @description api 설명은 주석 대신 swagger description으로 대체했습니다
  */
 @ApiTags('포인트 로그')
 @Controller('point')
@@ -31,7 +32,10 @@ export class PointLogController {
   @ApiNotFoundResponse({ status: 404, description: '유저 정보가 존재하지 않습니다' })
   @ApiInternalServerErrorResponse({ status: 500, description: '서버 내부 오류입니다' })
   @ApiOperation({
-    description: '유저의 가장 최근 포인트 관련 로그를 불러오는 api입니다',
+    description: `
+    유저의 가장 최근 포인트 관련 로그를 불러오는 api입니다
+    유저가 보유한 현재 포인트와 가장 최근의 포인트로그를 불러옵니다
+    `,
     summary: '유저 최근 포인트 로그 조회',
   })
   @ApiParam({ name: 'userId', description: '유저의 PK(uuid)입니다' })

@@ -9,6 +9,7 @@ import { PlaceService } from './place.service';
  * @author leokim1178
  * @summary 여행지 관련 api입니다
  * @link http://localhost:3001/api-docs/#/%EC%97%AC%ED%96%89%EC%A7%80
+ * @description api 설명은 주석 대신 swagger description으로 대체했습니다
  */
 @ApiTags('여행지')
 @Controller('place')
