@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateReviewInput } from './dto/createReviewInput';
 import { UpdateReviewInput } from './dto/updateReviewInput';
@@ -9,7 +9,7 @@ import { ReviewService } from './review.service';
 @ApiTags('리뷰')
 @Controller('review')
 export class ReviewController {
-  constructor(private readonly reviewService: ReviewService, private commandBus: CommandBus) {}
+  constructor(private readonly reviewService: ReviewService) {}
 
   @Get(':id')
   @ApiResponse({ type: Review, status: 200, description: '리뷰 정보 조회 성공' })
@@ -49,14 +49,16 @@ export class ReviewController {
     @Param('id') id: string, //
     @Body() updateReviewInput: UpdateReviewInput,
   ): Promise<Review> {
-    return await this.reviewService.update({ id, updateReviewInput });
+    const review = await this.reviewService.isExist({ reviewId: id });
+    return await this.reviewService.update({ review, updateReviewInput });
   }
 
   @Delete(':id')
   @ApiResponse({ type: Boolean, status: 200, description: '리뷰 삭제 성공' })
   @ApiOperation({ description: '리뷰 삭제 api입니다', summary: '리뷰 삭제' })
   @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
-  deleteReview(@Param('id') id: string): Promise<boolean> {
-    return this.reviewService.delete({ id });
+  async deleteReview(@Param('id') id: string): Promise<boolean> {
+    const review = await this.reviewService.isExist({ reviewId: id });
+    return this.reviewService.delete({ review });
   }
 }
