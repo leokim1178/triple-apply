@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiNotFoundResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePlaceInput } from './dto/createPlaceInput';
 import { UpdatePlaceInput } from './dto/updatePlaceInput';
 import { Place } from './entities/place.entity';
@@ -12,6 +12,7 @@ export class PlaceController {
 
   @Get(':id')
   @ApiResponse({ type: Place, status: 200, description: '여행지 조회 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '여행지 정보가 존재하지 않습니다' })
   @ApiOperation({ description: '여행지 조회 api입니다', summary: '여행지 조회' })
   @ApiParam({ name: 'id', description: '여행지의 PK(uuid)입니다' })
   fetchPlace(@Param('id') id: string): Promise<Place> {
@@ -38,6 +39,7 @@ export class PlaceController {
 
   @Patch(':id')
   @ApiResponse({ type: Place, status: 200, description: '여행지 수정 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '여행지 정보가 존재하지 않습니다' })
   @ApiOperation({ description: '여행지 수정 api입니다', summary: '여행지 수정' })
   @ApiBody({ type: UpdatePlaceInput })
   @ApiParam({ name: 'id', description: '여행지의 PK(uuid)입니다' })
@@ -47,6 +49,7 @@ export class PlaceController {
 
   @Delete(':id')
   @ApiResponse({ type: Boolean, status: 200, description: '여행지 삭제 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '여행지 정보가 존재하지 않습니다' })
   @ApiOperation({ description: '여행지 삭제 api입니다', summary: '여행지 삭제' })
   @ApiParam({ name: 'id', description: '여행지의 PK(uuid)입니다' })
   deletePlace(@Param('id') id: string): Promise<boolean> {

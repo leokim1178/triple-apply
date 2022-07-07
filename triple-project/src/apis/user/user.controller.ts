@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Patch, Post, Query, ValidationPipe } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiNotFoundResponse, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserInput } from './dto/createUserInput';
 import { UpdateUserInput } from './dto/updateUserInput';
 import { User } from './entities/user.entity';
@@ -13,6 +13,7 @@ export class UserController {
   //
   @Get()
   @ApiResponse({ type: User, status: 200, description: '유저 정보 조회 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '유저 정보가 존재하지 않습니다' })
   @ApiParam({ name: 'email', example: 'leo3179@naver.com' })
   @ApiOperation({ description: '유저 조회 api입니다', summary: '유저 조회' })
   fetchUser(@Query('email') email: string): Promise<User> {
@@ -22,6 +23,7 @@ export class UserController {
   //
   @Get('list')
   @ApiResponse({ type: User, isArray: true, status: 200, description: '유저 리스트 조회 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '유저 정보가 존재하지 않습니다' })
   @ApiOperation({ description: '유저 리스트 조회 api입니다', summary: '유저 리스트 조회' })
   fetchUsers(): Promise<User[]> {
     return this.userService.fetchAll();
@@ -42,6 +44,7 @@ export class UserController {
   //
   @Patch()
   @ApiResponse({ type: User, status: 200, description: '유저 정보 수정 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '유저 정보가 존재하지 않습니다' })
   @ApiQuery({ name: 'email', example: 'leo3179@naver.com' })
   @ApiBody({
     type: UpdateUserInput,
@@ -58,6 +61,7 @@ export class UserController {
   //
   @Delete()
   @ApiResponse({ type: Boolean, status: 200, description: '유저 정보 삭제 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '유저 정보가 존재하지 않습니다' })
   @ApiQuery({ name: 'email', example: 'leo3179@naver.com' })
   @ApiOperation({ description: '유저 정보 삭제 api입니다', summary: '유저 정보 삭제' })
   deleteUser(@Query('email') email: string): Promise<boolean> {

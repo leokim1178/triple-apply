@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -27,7 +32,9 @@ export class ReviewService {
   ) {}
 
   async fetch({ id }) {
-    return await this.reviewRepository.findOne({ where: { id }, relations: ['reviewImages', 'user', 'place'] });
+    const result = await this.reviewRepository.findOne({ where: { id }, relations: ['reviewImages', 'user', 'place'] });
+    if (!result) throw new NotFoundException('리뷰 정보가 존재하지 않습니다');
+    return result;
   }
 
   async fetchAll() {
@@ -35,128 +42,139 @@ export class ReviewService {
   }
 
   async create({ user, place, imgUrls, content }) {
-    let images;
-    let imagePoint = 0;
-    if (imgUrls.length > 0) {
-      images = await Promise.all(
-        imgUrls.map(el => {
-          return this.reviewImageRepository.save({ url: el });
-        }),
-      );
-      imagePoint++;
+    try {
+      let images;
+      let imagePoint = 0;
+      if (imgUrls.length > 0) {
+        images = await Promise.all(
+          imgUrls.map(el => {
+            return this.reviewImageRepository.save({ url: el });
+          }),
+        );
+        imagePoint++;
+      }
+
+      let bonusPoint = 0;
+      const reviewCount = await this.reviewRepository
+        .createQueryBuilder('review')
+        .where({ place: place.id })
+        .select('review.place', 'place')
+        .addSelect('COUNT(*) AS reviewCount')
+        .groupBy('review.place')
+        .getRawMany();
+
+      if (reviewCount.length == 0) {
+        bonusPoint++;
+      }
+
+      const isExist = await this.reviewRepository
+        .createQueryBuilder('review')
+        .leftJoin('review.user', 'user')
+        .leftJoin('review.place', 'place')
+        .where({ user })
+        .andWhere({ place })
+        .getOne();
+      if (isExist) throw new UnprocessableEntityException('장소에 대한 리뷰가 이미 존재합니다');
+
+      const result = await this.reviewRepository.save({
+        user,
+        place,
+        content,
+        reviewImages: images,
+        imagePoint,
+        bonusPoint,
+      });
+
+      const userId = user.id;
+      const placeId = place.id;
+      const reviewId = result.id;
+
+      const type = Type.REVIEW;
+      const action = Action.ADD;
+      let attachedPhotoIds;
+      if (result.reviewImages) {
+        attachedPhotoIds = result.reviewImages.map(el => el.id);
+      } else {
+        attachedPhotoIds = [];
+      }
+
+      this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
+      this.eventBus.publish(new ReviewCreatedPointEvent(userId, reviewId, type, action));
+
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException('서버 내부 오류입니다');
     }
-
-    let bonusPoint = 0;
-    const reviewCount = await this.reviewRepository
-      .createQueryBuilder('review')
-      .where({ place: place.id })
-      .select('review.place', 'place')
-      .addSelect('COUNT(*) AS reviewCount')
-      .groupBy('review.place')
-      .getRawMany();
-    console.log(reviewCount);
-
-    if (reviewCount.length == 0) {
-      bonusPoint++;
-    }
-
-    const isExist = await this.reviewRepository
-      .createQueryBuilder('review')
-      .leftJoin('review.user', 'user')
-      .leftJoin('review.place', 'place')
-      .where({ user })
-      .andWhere({ place })
-      .getOne();
-    if (isExist) throw new UnprocessableEntityException('장소에 대한 리뷰가 이미 존재합니다');
-
-    const result = await this.reviewRepository.save({
-      user,
-      place,
-      content,
-      reviewImages: images,
-      imagePoint,
-      bonusPoint,
-    });
-
-    const userId = user.id;
-    const placeId = place.id;
-    const reviewId = result.id;
-
-    const type = Type.REVIEW;
-    const action = Action.ADD;
-    let attachedPhotoIds;
-    if (result.reviewImages) {
-      attachedPhotoIds = result.reviewImages.map(el => el.id);
-    } else {
-      attachedPhotoIds = [];
-    }
-
-    this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
-    this.eventBus.publish(new ReviewCreatedPointEvent(userId, reviewId, type, action));
-
-    return result;
   }
 
   async update({ review, updateReviewInput }) {
-    const { imgUrls, content } = updateReviewInput;
+    try {
+      const { imgUrls, content } = updateReviewInput;
 
-    const lastImagePoint = review.imagePoint;
+      const lastImagePoint = review.imagePoint;
 
-    const deleteResult = await this.reviewImageRepository.delete({ review });
-    if (!deleteResult) throw new UnprocessableEntityException();
+      await this.reviewImageRepository.delete({ review });
 
-    let images;
-    let imagePoint = 0;
-    if (imgUrls?.length > 0) {
-      images = await Promise.all(
-        imgUrls.map(el => {
-          return this.reviewImageRepository.save({ url: el });
-        }),
-      );
-      if (review.reviewImages?.length == 0 || review.reviewImages?.length > 0) {
-        imagePoint++;
+      let images;
+      let imagePoint = 0;
+      if (imgUrls?.length > 0) {
+        images = await Promise.all(
+          imgUrls.map(el => {
+            return this.reviewImageRepository.save({ url: el });
+          }),
+        );
+        if (review.reviewImages?.length == 0 || review.reviewImages?.length > 0) {
+          imagePoint++;
+        }
       }
+
+      const result = await this.reviewRepository.save({
+        ...review,
+        content,
+        reviewImages: images,
+        imagePoint,
+      });
+      const userId = review.user.id;
+      const placeId = result.place.id;
+      const reviewId = result.id;
+
+      const type = Type.REVIEW;
+      const action = Action.MOD;
+      let attachedPhotoIds;
+      if (result.reviewImages) {
+        attachedPhotoIds = result.reviewImages.map(el => el.id);
+      } else {
+        attachedPhotoIds = [];
+      }
+      this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
+      this.eventBus.publish(new ReviewUpdatedPointEvent(userId, reviewId, type, action, lastImagePoint));
+
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException('서버 내부 오류입니다');
     }
-
-    const result = await this.reviewRepository.save({
-      ...review,
-      content,
-      reviewImages: images,
-      imagePoint,
-    });
-    const userId = review.user.id;
-    const placeId = result.place.id;
-    const reviewId = result.id;
-
-    const type = Type.REVIEW;
-    const action = Action.MOD;
-    let attachedPhotoIds;
-    if (result.reviewImages) {
-      attachedPhotoIds = result.reviewImages.map(el => el.id);
-    } else {
-      attachedPhotoIds = [];
-    }
-    this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
-    this.eventBus.publish(new ReviewUpdatedPointEvent(userId, reviewId, type, action, lastImagePoint));
-
-    return result;
   }
 
   async delete({ review }) {
-    const content = review.content;
-    const userId = review.user.id;
-    const reviewId = review.id;
-    const placeId = review.place.id;
-    const type = Type.REVIEW;
-    const action = Action.DELETE;
-    const attachedPhotoIds = await review.reviewImages?.map(el => el.id);
-    const reviewPoint = review.defaultPoint + review.imagePoint + review.bonusPoint;
+    try {
+      const content = review.content;
+      const userId = review.user.id;
+      const reviewId = review.id;
+      const placeId = review.place.id;
+      const type = Type.REVIEW;
+      const action = Action.DELETE;
+      const attachedPhotoIds = await review.reviewImages?.map(el => el.id);
+      const reviewPoint = review.defaultPoint + review.imagePoint + review.bonusPoint;
 
-    this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
-    this.eventBus.publish(new ReviewDeletedPointEvent(userId, reviewId, type, action, reviewPoint));
-    await this.reviewImageRepository.delete({ review });
-    const result = await this.reviewRepository.softDelete({ id: reviewId });
-    return result.affected ? true : false;
+      this.eventBus.publish(new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds));
+      this.eventBus.publish(new ReviewDeletedPointEvent(userId, reviewId, type, action, reviewPoint));
+
+      await this.reviewImageRepository.delete({ review: reviewId });
+      const result = await this.reviewRepository.softDelete({ id: reviewId });
+      return result.affected ? true : false;
+    } catch (error) {
+      throw new InternalServerErrorException('서버 내부 오류입니다');
+    }
   }
 
   async isExist({ reviewId, placeId, userId }: { reviewId?: string; placeId?: string; userId?: string }) {

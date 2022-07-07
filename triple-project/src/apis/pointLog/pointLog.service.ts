@@ -27,7 +27,7 @@ export class PointLogService {
         .where({ user })
         .orderBy('pointLog.createdAt', 'DESC')
         .getOne();
-      if (!result) throw new InternalServerErrorException();
+
       const output: RecentPointOutput = {
         userEmail: user.email,
         totalPoint: user.point,

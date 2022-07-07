@@ -1,5 +1,13 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PointLogsOutput } from './dto/pointLogsOutput';
 import { RecentPointOutput } from './dto/RecentPointOutput';
 import { PointLogService } from './pointLog.service';
@@ -15,6 +23,8 @@ export class PointLogController {
     status: 200,
     description: '유저가 보유한 현재 포인트와 가장 최근의 포인트로그를 불러옵니다',
   })
+  @ApiNotFoundResponse({ status: 404, description: '유저 정보가 존재하지 않습니다' })
+  @ApiInternalServerErrorResponse({ status: 500, description: '서버 내부 오류입니다' })
   @ApiOperation({
     description: '유저의 가장 최근 포인트 관련 로그를 불러오는 api입니다',
     summary: '유저 최근 포인트 로그 조회',
@@ -33,6 +43,8 @@ export class PointLogController {
     status: 200,
     description: '유저가 보유한 현재 포인트와 가장 최근의 포인트 로그 리스트를 불러옵니다',
   })
+  @ApiNotFoundResponse({ status: 404, description: '관련 정보가 존재하지 않습니다' })
+  @ApiInternalServerErrorResponse({ status: 500, description: '서버 내부 오류입니다' })
   @ApiOperation({
     description: `
     유저의 가장 최근의 포인트 관련 로그 리스트를 불러오는 api입니다 

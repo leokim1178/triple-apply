@@ -1,6 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
 
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { CreateReviewInput } from './dto/createReviewInput';
 import { UpdateReviewInput } from './dto/updateReviewInput';
 import { Review } from './entities/review.entity';
@@ -13,6 +22,7 @@ export class ReviewController {
 
   @Get(':id')
   @ApiResponse({ type: Review, status: 200, description: '리뷰 정보 조회 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '리뷰 정보가 존재하지 않습니다' })
   @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
   @ApiOperation({ description: '리뷰 조회 api입니다', summary: '리뷰 조회' })
   fetchReview(@Param('id') id: string): Promise<Review> {
@@ -21,6 +31,7 @@ export class ReviewController {
 
   @Get('list')
   @ApiResponse({ type: Review, isArray: true, status: 200, description: '리뷰 리스트 조회 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '리뷰 정보가 존재하지 않습니다' })
   @ApiOperation({ description: '리뷰 리스트 조회 api입니다', summary: '리뷰 리스트 조회' })
   fetchReviews(): Promise<Review[]> {
     return this.reviewService.fetchAll();
@@ -28,6 +39,9 @@ export class ReviewController {
 
   @Post()
   @ApiResponse({ type: Review, status: 200, description: '리뷰 생성 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '리뷰 정보가 존재하지 않습니다' })
+  @ApiUnprocessableEntityResponse({ status: 422, description: '장소에 대한 리뷰가 이미 존재합니다' })
+  @ApiInternalServerErrorResponse({ status: 500, description: '서버 내부 오류입니다' })
   @ApiOperation({ description: '리뷰 생성 api입니다', summary: '리뷰 생성' })
   @ApiBody({ type: CreateReviewInput })
   async createReview(
@@ -42,6 +56,8 @@ export class ReviewController {
 
   @Patch(':id')
   @ApiResponse({ type: Review, status: 200, description: '리뷰 수정 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '관련 정보가 존재하지 않습니다' })
+  @ApiInternalServerErrorResponse({ status: 500, description: '서버 내부 오류입니다' })
   @ApiOperation({ description: '리뷰 수정 api입니다', summary: '리뷰 수정' })
   @ApiBody({ type: UpdateReviewInput })
   @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
@@ -55,6 +71,8 @@ export class ReviewController {
 
   @Delete(':id')
   @ApiResponse({ type: Boolean, status: 200, description: '리뷰 삭제 성공' })
+  @ApiNotFoundResponse({ status: 404, description: '관련 정보가 존재하지 않습니다' })
+  @ApiInternalServerErrorResponse({ status: 500, description: '서버 내부 오류입니다' })
   @ApiOperation({ description: '리뷰 삭제 api입니다', summary: '리뷰 삭제' })
   @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
   async deleteReview(@Param('id') id: string): Promise<boolean> {

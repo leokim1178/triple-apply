@@ -1,6 +1,13 @@
 import { BadRequestException, Body, Controller, NotFoundException, Post, ValidationPipe } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Action, Type } from './type/event.type';
@@ -26,6 +33,8 @@ export class EventController {
 
   @Post()
   @ApiResponse({ type: ReviewLogEvent, status: 200, description: '이벤트 생성 성공' })
+  @ApiBadRequestResponse({ status: 400, description: '올바른 요청이 아닙니다' })
+  @ApiNotFoundResponse({ status: 404, description: '리뷰 정보가 존재하지 않습니다' })
   @ApiOperation({ description: '이벤트 생성 api입니다', summary: '이벤트 생성' })
   @ApiBody({ type: EventInput })
   async createReviewEvent(@Body(ValidationPipe) event: EventInput): Promise<ReviewLogEvent> {
