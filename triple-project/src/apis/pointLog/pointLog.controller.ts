@@ -20,7 +20,10 @@ export class PointLogController {
     summary: '유저 최근 포인트 로그 조회',
   })
   @ApiParam({ name: 'userId', description: '유저의 PK(uuid)입니다' })
-  fetchRecentLog(@Param('userId') userId: string): Promise<RecentPointOutput> {
+  fetchRecentLog(
+    @Param('userId')
+    userId: string,
+  ): Promise<RecentPointOutput> {
     return this.pointLogService.findRecentLog({ userId });
   }
 
