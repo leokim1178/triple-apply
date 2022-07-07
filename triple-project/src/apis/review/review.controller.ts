@@ -15,6 +15,11 @@ import { UpdateReviewInput } from './dto/updateReviewInput';
 import { Review } from './entities/review.entity';
 import { ReviewService } from './review.service';
 
+/**
+ * @author leokim1178
+ * @summary 이벤트 관련 api입니다
+ * @link http://localhost:3001/api-docs/#/%EB%A6%AC%EB%B7%B0
+ */
 @ApiTags('리뷰')
 @Controller('review')
 export class ReviewController {

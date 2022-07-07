@@ -5,6 +5,11 @@ import { UpdatePlaceInput } from './dto/updatePlaceInput';
 import { Place } from './entities/place.entity';
 import { PlaceService } from './place.service';
 
+/**
+ * @author leokim1178
+ * @summary 여행지 관련 api입니다
+ * @link http://localhost:3001/api-docs/#/%EC%97%AC%ED%96%89%EC%A7%80
+ */
 @ApiTags('여행지')
 @Controller('place')
 export class PlaceController {

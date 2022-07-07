@@ -12,9 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Action, Type } from './type/event.type';
 import { Review } from '../review/entities/review.entity';
-
-import { EventInput } from './dto/reviewEventInput';
-
+import { EventInput } from './dto/ReviewEventInput';
 import {
   ReviewCreatedPointEvent,
   ReviewDeletedPointEvent,
@@ -22,6 +20,11 @@ import {
   ReviewUpdatedPointEvent,
 } from './events/review.events';
 
+/**
+ * @author leokim1178
+ * @summary 이벤트 관련 api입니다
+ * @link http://localhost:3001/api-docs/#/%EC%9D%B4%EB%B2%A4%ED%8A%B8
+ */
 @ApiTags('이벤트')
 @Controller('events')
 export class EventController {

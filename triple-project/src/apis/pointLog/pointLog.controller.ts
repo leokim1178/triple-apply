@@ -12,6 +12,11 @@ import { PointLogsOutput } from './dto/pointLogsOutput';
 import { RecentPointOutput } from './dto/RecentPointOutput';
 import { PointLogService } from './pointLog.service';
 
+/**
+ * @author leokim1178
+ * @summary 포인트 로그 관련 api입니다
+ * @link http://localhost:3001/api-docs/#/%ED%8F%AC%EC%9D%B8%ED%8A%B8%20%EB%A1%9C%EA%B7%B8
+ */
 @ApiTags('포인트 로그')
 @Controller('point')
 export class PointLogController {

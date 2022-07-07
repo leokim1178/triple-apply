@@ -5,6 +5,11 @@ import { UpdateUserInput } from './dto/updateUserInput';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
+/**
+ * @author leokim1178
+ * @summary 이벤트 관련 api입니다
+ * @link http://localhost:3001/api-docs/#/%EC%9C%A0%EC%A0%80
+ */
 @ApiTags('유저')
 @Controller('user')
 export class UserController {
