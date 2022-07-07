@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Query, ValidationPipe } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserInput } from './dto/createUserInput';
 import { UpdateUserInput } from './dto/updateUserInput';
@@ -33,7 +33,7 @@ export class UserController {
   @ApiBody({ type: CreateUserInput })
   @ApiOperation({ description: '유저 생성 api입니다', summary: '유저 생성' })
   createUser(
-    @Body()
+    @Body(ValidationPipe)
     createUserInput: CreateUserInput,
   ): Promise<User> {
     return this.userService.create({ createUserInput });
@@ -49,7 +49,7 @@ export class UserController {
   @ApiOperation({ description: '유저 정보 수정 api입니다', summary: '유저 정보 수정' })
   updateUser(
     @Query('email') email: string,
-    @Body()
+    @Body(ValidationPipe)
     updateUserInput: UpdateUserInput,
   ): Promise<User> {
     return this.userService.update({ email, updateUserInput });

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
 
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateReviewInput } from './dto/createReviewInput';
@@ -31,7 +31,7 @@ export class ReviewController {
   @ApiOperation({ description: '리뷰 생성 api입니다', summary: '리뷰 생성' })
   @ApiBody({ type: CreateReviewInput })
   async createReview(
-    @Body() createReviewInput: CreateReviewInput, //
+    @Body(ValidationPipe) createReviewInput: CreateReviewInput, //
   ): Promise<Review> {
     const { placeId, imgUrls, content, userId } = createReviewInput;
 
@@ -47,7 +47,7 @@ export class ReviewController {
   @ApiParam({ name: 'id', description: '리뷰의 PK(uuid)입니다' })
   async updateReview(
     @Param('id') id: string, //
-    @Body() updateReviewInput: UpdateReviewInput,
+    @Body(ValidationPipe) updateReviewInput: UpdateReviewInput,
   ): Promise<Review> {
     const review = await this.reviewService.isExist({ reviewId: id });
     return await this.reviewService.update({ review, updateReviewInput });

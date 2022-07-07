@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Place } from './entities/place.entity';
@@ -11,7 +11,9 @@ export class PlaceService {
   ) {}
 
   async fetch({ id }) {
-    return await this.placeRepository.findOne({ where: { id } });
+    const place = await this.placeRepository.findOne({ where: { id } });
+    if (!place) throw new NotFoundException('여행지 정보가 존재하지 않습니다');
+    return place;
   }
   async fetchAll() {
     return await this.placeRepository.find();
@@ -29,6 +31,7 @@ export class PlaceService {
   }
 
   async delete({ id }) {
+    await this.fetch({ id });
     const result = await this.placeRepository.delete({ id });
     return result.affected ? true : false;
   }

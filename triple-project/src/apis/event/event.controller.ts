@@ -1,6 +1,6 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, NotFoundException, Post, ValidationPipe } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Action, Type } from './type/event.type';
@@ -8,8 +8,6 @@ import { Review } from '../review/entities/review.entity';
 
 import { EventInput } from './dto/reviewEventInput';
 
-import { EventService } from './event.service';
-import { ReviewEventHandler } from './eventHandlers/reviewEvent.handler';
 import {
   ReviewCreatedPointEvent,
   ReviewDeletedPointEvent,
@@ -21,9 +19,7 @@ import {
 @Controller('events')
 export class EventController {
   constructor(
-    private readonly eventService: EventService,
     private readonly eventBus: EventBus,
-    private readonly reviewEventHandler: ReviewEventHandler,
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
   ) {}
@@ -44,7 +40,7 @@ export class EventController {
     const logEvent = new ReviewLogEvent(content, userId, reviewId, placeId, type, action, attachedPhotoIds);
 
     if (Type.REVIEW === type) this.eventBus.publish(logEvent);
-
+    else throw new BadRequestException('이벤트 type이 REVIEW가 아닙니다');
     const review = await this.reviewRepository.findOne({
       where: {
         id: reviewId,
@@ -69,7 +65,7 @@ export class EventController {
         break;
       }
       default:
-        break;
+        throw new BadRequestException('이벤트 action이 올바르지 않습니다');
     }
 
     return logEvent;

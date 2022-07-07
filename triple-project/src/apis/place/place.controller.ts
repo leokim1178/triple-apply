@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePlaceInput } from './dto/createPlaceInput';
 import { UpdatePlaceInput } from './dto/updatePlaceInput';
@@ -30,7 +30,7 @@ export class PlaceController {
   @ApiOperation({ description: '여행지 생성 api입니다', summary: '여행지 생성' })
   @ApiBody({ type: CreatePlaceInput })
   createPlace(
-    @Body()
+    @Body(ValidationPipe)
     createPlaceInput: CreatePlaceInput,
   ): Promise<Place> {
     return this.placeService.create({ createPlaceInput });

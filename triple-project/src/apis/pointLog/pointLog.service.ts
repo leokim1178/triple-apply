@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from '../review/entities/review.entity';
@@ -18,22 +18,30 @@ export class PointLogService {
   //현재 포인트값
   async findRecentLog({ userId }) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    const result = await this.pointLogRepository
-      .createQueryBuilder('pointLog')
-      .leftJoin('pointLog.user', 'user')
-      .where({ user })
-      .orderBy('pointLog.createdAt', 'DESC')
-      .getOne();
-    const output: RecentPointOutput = {
-      userEmail: user.email,
-      totalPoint: user.point,
-      recentPointLog: result,
-    };
-    return output;
+    if (!user) throw new NotFoundException('유저 정보가 존재하지 않습니다');
+
+    try {
+      const result = await this.pointLogRepository
+        .createQueryBuilder('pointLog')
+        .leftJoin('pointLog.user', 'user')
+        .where({ user })
+        .orderBy('pointLog.createdAt', 'DESC')
+        .getOne();
+      if (!result) throw new InternalServerErrorException();
+      const output: RecentPointOutput = {
+        userEmail: user.email,
+        totalPoint: user.point,
+        recentPointLog: result,
+      };
+      return output;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async findLogs({ userId, reviewId, page }) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('유저 정보가 존재하지 않습니다');
     const qb = this.pointLogRepository
       .createQueryBuilder('pointLog')
       .leftJoin('pointLog.user', 'user')
@@ -44,24 +52,29 @@ export class PointLogService {
 
     if (reviewId) {
       const review = await this.reviewRepository.findOne({ where: { id: reviewId } });
+      if (!review) throw new NotFoundException('여행지 정보가 존재하지 않습니다');
       qb.andWhere({ review });
     }
 
-    let result;
-    let output: PointLogsOutput;
-    if (page) {
-      result = await qb
-        .take(10)
-        .skip((page - 1) * 10)
-        .getManyAndCount();
-      const [pointLogs, total] = result;
+    try {
+      let result;
+      let output: PointLogsOutput;
+      if (page) {
+        result = await qb
+          .take(10)
+          .skip((page - 1) * 10)
+          .getManyAndCount();
+        const [pointLogs, total] = result;
 
-      output = { pointLogs, total, page, count: 10 };
-    } else {
-      result = await qb.getManyAndCount();
-      const [pointLogs, total] = result;
-      output = { pointLogs, total };
+        output = { pointLogs, total, page, count: 10 };
+      } else {
+        result = await qb.getManyAndCount();
+        const [pointLogs, total] = result;
+        output = { pointLogs, total };
+      }
+      return output;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
-    return output;
   }
 }

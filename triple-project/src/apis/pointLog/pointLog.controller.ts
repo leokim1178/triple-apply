@@ -56,7 +56,7 @@ export class PointLogController {
     페이지 번호입니다
     10개씩 카운트하여 페이지네이션합니다
     입력하지 않을 경우 유저의 모든 로그를 불러옵니다
-  `,
+    `,
     required: false,
   })
   fetchLogs(
