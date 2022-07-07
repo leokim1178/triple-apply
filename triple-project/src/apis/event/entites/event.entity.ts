@@ -45,6 +45,10 @@ export class Event {
   @Column({ nullable: true })
   attachedPhotoIds: string;
 
+  @ApiProperty({
+    example: '2022-07-06 19:23:15.100208000',
+    description: '이벤트 생성시간',
+  })
   @CreateDateColumn()
   createdAt: Date;
 }

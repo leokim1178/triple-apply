@@ -15,7 +15,7 @@ export class PointLog {
 
   @ApiProperty({ description: '변경된 포인트 수', example: 2 })
   @Column()
-  point: number;
+  recentChange: number;
 
   @ApiProperty({ description: '유저가 지금까지 보유한 포인트양', example: 15 })
   @Column({ default: 0 })

@@ -12,14 +12,7 @@ import {
   ReviewDeletedPointEvent,
 } from '../events/review.events';
 
-@EventsHandler(
-  ReviewLogEvent,
-  ReviewCreatedPointEvent,
-
-  ReviewUpdatedPointEvent,
-
-  ReviewDeletedPointEvent,
-)
+@EventsHandler(ReviewLogEvent, ReviewCreatedPointEvent, ReviewUpdatedPointEvent, ReviewDeletedPointEvent)
 export class ReviewEventHandler
   implements
     IEventHandler<
@@ -51,11 +44,11 @@ export class ReviewEventHandler
       }
       case ReviewCreatedPointEvent.name: {
         const review = await this.reviewRepository.findOne({ where: { id: event.reviewId } });
-        const createdPoint = review.imagePoint + review.bonusPoint + review.defaultPoint;
         const user = await this.userRepository.findOne({ where: { id: event.userId } });
+        const createdPoint = review.imagePoint + review.bonusPoint + review.defaultPoint;
         const updateUser = await this.userRepository.save({ ...user, point: user.point + createdPoint });
         await this.pointLogRepository.save({
-          point: createdPoint,
+          recentChange: createdPoint,
           total: updateUser.point,
           type: event.type,
           action: event.action,
@@ -67,12 +60,12 @@ export class ReviewEventHandler
       }
       case ReviewUpdatedPointEvent.name: {
         const review = await this.reviewRepository.findOne({ where: { id: event.reviewId } });
-        const updatedPoint = review.imagePoint - event.lastImagePoint;
         const user = await this.userRepository.findOne({ where: { id: event.userId } });
+        const updatedPoint = review.imagePoint - event.lastImagePoint;
 
         const updateUser = await this.userRepository.save({ ...user, point: user.point + updatedPoint });
         await this.pointLogRepository.save({
-          point: updatedPoint,
+          recentChange: updatedPoint,
           total: updateUser.point,
           type: event.type,
           action: event.action,
@@ -87,7 +80,7 @@ export class ReviewEventHandler
         const user = await this.userRepository.findOne({ where: { id: event.userId } });
         const updateUser = await this.userRepository.save({ ...user, point: user.point - event.reviewPoint });
         await this.pointLogRepository.save({
-          point: -event.reviewPoint,
+          recentChange: -event.reviewPoint,
           total: updateUser.point,
           type: event.type,
           action: event.action,

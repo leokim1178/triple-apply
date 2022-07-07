@@ -1,15 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Place } from 'src/apis/place/entities/place.entity';
 import { Review } from 'src/apis/review/entities/review.entity';
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class ReviewImage {
@@ -20,6 +11,10 @@ export class ReviewImage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({
+    example: 'photo1.png',
+    description: '리뷰에 첨부된 이미지의 url',
+  })
   @Column()
   url: string;
 
@@ -31,12 +26,10 @@ export class ReviewImage {
   @ManyToOne(() => Review, { onDelete: 'CASCADE' })
   review: Review;
 
+  @ApiProperty({
+    example: '2022-07-06 19:23:15.100208000',
+    description: '리뷰 이미지 생성시간',
+  })
   @CreateDateColumn()
   createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }
